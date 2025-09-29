@@ -3,6 +3,7 @@ import pytest
 import json
 from pathlib import Path
 
+from project import models
 from project.app import app, db
 
 TEST_DB = "test.db"
@@ -81,3 +82,23 @@ def test_delete_message(client):
     rv = client.get('/delete/1')
     data = json.loads(rv.data)
     assert data["status"] == 1
+    
+def test_search(client):
+    """Test the /search/ route"""
+    # Add some posts
+    with app.app_context():
+        post1 = models.Post(title="Test Post 1", text="Some text")
+        post2 = models.Post(title="Another Test", text="More content")
+        db.session.add_all([post1, post2])
+        db.session.commit()
+
+        # Force query evaluation
+        entries = list(db.session.query(models.Post))
+
+    # Just ensure the route loads
+    rv = client.get("/search/")
+    assert rv.status_code == 200
+
+    # With a query param
+    rv = client.get("/search/?query=Another")
+    assert rv.status_code == 200
