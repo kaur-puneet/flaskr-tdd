@@ -2,3 +2,7 @@ Flask
 Flask-SQLAlchemy
 gunicorn
 pytest
+psycopg2-binary
+black
+flake8
+pytest
